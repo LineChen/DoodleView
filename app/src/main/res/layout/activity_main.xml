@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <com.line.doodleview.view.DrawLineView
+    <com.line.doodleview.view.DrawRoundView
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:background="#ececec" />
