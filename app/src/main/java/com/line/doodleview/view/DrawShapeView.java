@@ -17,25 +17,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by chenliu on 2020-02-15.
+ * Created by chenliu on 2020-02-16.
  */
-public class DrawRoundView extends View {
-    public static final String TAG = "DrawLineView";
+public class DrawShapeView extends View {
 
-    TouchGestureDetector gestureDetectorCompat;
+    public static final String TAG = "DrawShapeView";
 
-    public DrawRoundView(Context context) {
+    public DrawShapeView(Context context) {
         super(context);
     }
 
+    TouchGestureDetector gestureDetectorCompat;
 
-    public DrawRoundView(Context context, @Nullable AttributeSet attrs) {
+    public DrawShapeView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         gestureDetectorCompat = new TouchGestureDetector(context, new TouchGestureDetector.OnTouchGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
-                currentLine = new Shape();
-                currentLine.setStartPoint(e.getX(), e.getY());
+                currentShape = new Shape(currentShapeType);
+                currentShape.setStartPoint(e.getX(), e.getY());
                 return true;
             }
 
@@ -43,7 +43,7 @@ public class DrawRoundView extends View {
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 Log.d(TAG, "onScroll: e1:" + e1.getActionMasked());
                 Log.d(TAG, "onScroll: e2:" + e2.getActionMasked());
-                currentLine.setEndPoint(e2.getX(), e2.getY());
+                currentShape.setEndPoint(e2.getX(), e2.getY());
                 invalidate();
                 return true;
             }
@@ -51,8 +51,8 @@ public class DrawRoundView extends View {
             @Override
             public void onScrollEnd(MotionEvent e) {
                 Log.d(TAG, "onSingleTapUp: " + e.getActionMasked());
-                lineList.add(currentLine.copy());
-                currentLine = null;
+                shapeList.add(currentShape.copy());
+                currentShape = null;
                 invalidate();
             }
         });
@@ -67,12 +67,14 @@ public class DrawRoundView extends View {
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(Color.GREEN);
 
-        lineList = new ArrayList<>();
+        shapeList = new ArrayList<>();
     }
 
-    List<Shape> lineList;
+    List<Shape> shapeList;
 
-    Shape currentLine;
+    Shape currentShape;
+
+    private Shape.ShapeType currentShapeType = Shape.ShapeType.LINE;
 
 
     @Override
@@ -83,15 +85,34 @@ public class DrawRoundView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        for (Shape l : lineList) {
-            drawRound(l, canvas);
+        for (Shape l : shapeList) {
+            drawShape(l, canvas);
         }
-        if (currentLine != null) {
-            drawRound(currentLine, canvas);
+        if (currentShape != null) {
+            drawShape(currentShape, canvas);
         }
     }
 
-    private void drawRound(Shape l, Canvas canvas) {
-        canvas.drawOval(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY(), paint);
+    private void drawShape(Shape l, Canvas canvas) {
+        switch (l.getType()) {
+            case LINE:
+                canvas.drawLine(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY(), paint);
+                break;
+            case RECT:
+                canvas.drawRect(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY(), paint);
+                break;
+            case OVAL:
+                canvas.drawOval(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY(), paint);
+                break;
+        }
+    }
+
+    public void setDrawShape(Shape.ShapeType currentShape) {
+        this.currentShapeType = currentShape;
+    }
+
+    public void clear(){
+        shapeList.clear();
+        invalidate();
     }
 }

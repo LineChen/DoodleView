@@ -19,23 +19,23 @@ import java.util.List;
 /**
  * Created by chenliu on 2020-02-15.
  */
-public class DrawLineView extends View {
+public class DrawOvalView extends View {
     public static final String TAG = "DrawLineView";
 
     TouchGestureDetector gestureDetectorCompat;
 
-    public DrawLineView(Context context) {
+    public DrawOvalView(Context context) {
         super(context);
     }
 
 
-    public DrawLineView(Context context, @Nullable AttributeSet attrs) {
+    public DrawOvalView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         gestureDetectorCompat = new TouchGestureDetector(context, new TouchGestureDetector.OnTouchGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 currentLine = new Shape();
-                currentLine.setType(Shape.ShapeType.LINE);
+                currentLine.setType(Shape.ShapeType.OVAL);
                 currentLine.setStartPoint(e.getX(), e.getY());
                 return true;
             }
@@ -85,22 +85,14 @@ public class DrawLineView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (Shape l : lineList) {
-            drawLine(l, canvas);
+            drawRound(l, canvas);
         }
         if (currentLine != null) {
-            drawLine(currentLine, canvas);
+            drawRound(currentLine, canvas);
         }
     }
 
-    private void drawLine(Shape l, Canvas canvas) {
-        canvas.drawLine(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY(), paint);
+    private void drawRound(Shape l, Canvas canvas) {
+        canvas.drawOval(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY(), paint);
     }
 }
-
-
-
-
-
-
-
-

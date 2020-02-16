@@ -35,6 +35,7 @@ public class DrawRectView extends View {
             @Override
             public boolean onDown(MotionEvent e) {
                 currentLine = new Shape();
+                currentLine.setType(Shape.ShapeType.RECT);
                 currentLine.setStartPoint(e.getX(), e.getY());
                 return true;
             }
