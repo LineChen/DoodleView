@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
 
 import androidx.core.view.ScaleGestureDetectorCompat;
+
 import com.line.doodleview.R;
 
 import java.util.ArrayList;
@@ -146,7 +147,7 @@ public class DrawTextView extends View {
                     }
                 }
                 Log.d(TAG, "onScaleBegin: findText=" + findText);
-                return findText;
+                return touchPointCount > 1;
             }
 
             @Override
@@ -163,7 +164,13 @@ public class DrawTextView extends View {
                 }
                 if (selectedText != null) {
                     selectedText.setScale(scaleFactor * selectedText.getScale());
+                } else {
+//                    Matrix matrix = getMatrix();
+//                    matrix.postScale(scaleFactor, scaleFactor);
+//                    DrawTextView.this.setma
+                    canvasScale *= scaleFactor;
                 }
+                invalidate();
                 Log.d(TAG, "onScale: " + scaleFactor);
                 return true;
             }
@@ -181,6 +188,7 @@ public class DrawTextView extends View {
     private GestureDetectorCompat gestureDetectorCompat;
     private ScaleGestureDetector scaleGestureDetector;
     private int touchPointCount;
+    private float canvasScale = 1.0f;
 
     String text = "";
     float textWidth;
@@ -201,9 +209,11 @@ public class DrawTextView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+
         for (TextModel textModel : textModelList) {
             RectF rect = textModel.getRect();
             canvas.save();
+            canvas.scale(canvasScale, canvasScale);
             canvas.translate(rect.left, rect.top);
             textPaint.setTextSize(getContext().getResources().getDisplayMetrics().density * 12 * textModel.getScale());
 //            textPaint.setTextScaleX(textModel.getScale());
