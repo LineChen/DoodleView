@@ -7,17 +7,14 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 
 import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
 
+import androidx.core.view.ScaleGestureDetectorCompat;
 import com.line.doodleview.R;
 
 import java.util.ArrayList;
@@ -36,11 +33,13 @@ public class DrawTextView extends View {
 
     public DrawTextView(final Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        gestureDetectorCompat = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
+        gestureDetectorCompat = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public boolean onDown(MotionEvent e) {
-                return true;
+                int pointerCount = e.getPointerCount();
+                Log.d(TAG, "onDown: pointerCount=" + pointerCount);
+                return touchPointCount == 1;
             }
 
             @Override
@@ -134,11 +133,54 @@ public class DrawTextView extends View {
             }
         });
 
+
+        scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                boolean findText = false;
+                for (int i = textModelList.size() - 1; i >= 0; i--) {
+                    TextModel textModel = textModelList.get(i);
+                    if (textModel.isSelected()) {
+                        findText = true;
+                        break;
+                    }
+                }
+                Log.d(TAG, "onScaleBegin: findText=" + findText);
+                return findText;
+            }
+
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                if (detector == null) return false;
+                float scaleFactor = detector.getScaleFactor();
+                TextModel selectedText = null;
+                for (int i = textModelList.size() - 1; i >= 0; i--) {
+                    TextModel textModel = textModelList.get(i);
+                    if (textModel.isSelected()) {
+                        selectedText = textModel;
+                        break;
+                    }
+                }
+                if (selectedText != null) {
+                    selectedText.setScale(scaleFactor * selectedText.getScale());
+                }
+                Log.d(TAG, "onScale: " + scaleFactor);
+                return true;
+            }
+
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+
+            }
+        });
     }
 
     private final List<TextModel> textModelList = new ArrayList<>();
 
-    GestureDetectorCompat gestureDetectorCompat;
+    private GestureDetectorCompat gestureDetectorCompat;
+    private ScaleGestureDetector scaleGestureDetector;
+    private int touchPointCount;
 
     String text = "";
     float textWidth;
@@ -163,6 +205,8 @@ public class DrawTextView extends View {
             RectF rect = textModel.getRect();
             canvas.save();
             canvas.translate(rect.left, rect.top);
+            textPaint.setTextSize(getContext().getResources().getDisplayMetrics().density * 12 * textModel.getScale());
+//            textPaint.setTextScaleX(textModel.getScale());
             StaticLayout textLayout = StaticLayout.Builder.obtain(
                     textModel.getText(),
                     0,
@@ -176,14 +220,16 @@ public class DrawTextView extends View {
             if (textModel.isSelected()) {
                 canvas.drawRect(rect, paint);
             }
-            Log.d(TAG, "onDraw: " + textModel);
+//            Log.d(TAG, "onDraw: " + textModel);
         }
 
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return gestureDetectorCompat.onTouchEvent(event);
+        touchPointCount = event.getPointerCount();
+        Log.d(TAG, "onTouchEvent: touchPointCount=" + touchPointCount);
+        return gestureDetectorCompat.onTouchEvent(event) || scaleGestureDetector.onTouchEvent(event);
     }
 
 }

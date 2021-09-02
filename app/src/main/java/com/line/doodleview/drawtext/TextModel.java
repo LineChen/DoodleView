@@ -14,6 +14,15 @@ public class TextModel {
 
     private boolean selected;
 
+    private float scale = 1.0f;
+
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
 
     public void setRect(RectF rect) {
         this.rect.set(rect);
