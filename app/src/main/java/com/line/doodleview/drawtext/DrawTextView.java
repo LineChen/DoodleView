@@ -19,6 +19,7 @@ import androidx.core.view.ScaleGestureDetectorCompat;
 import com.line.doodleview.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ public class DrawTextView extends View {
             @Override
             public boolean onDown(MotionEvent e) {
                 int pointerCount = e.getPointerCount();
-                Log.d(TAG, "onDown: pointerCount=" + pointerCount);
+                Log.d(TAG, "onDown: x,y=" + e.getX() + "," + e.getY());
                 return touchPointCount == 1;
             }
 
@@ -90,6 +91,7 @@ public class DrawTextView extends View {
                 popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
                     @Override
                     public void onDismiss() {
+                        preSolveEditText(contentView);
                         String result = contentView.getText().toString();
                         if (TextUtils.isEmpty(result)) {
                             return;
@@ -107,6 +109,17 @@ public class DrawTextView extends View {
                     }
                 });
                 return true;
+            }
+
+            private void preSolveEditText(EditText editText) {
+                String text = editText.getText().toString();
+                int lineCount = editText.getLayout().getLineCount();
+                List<String> lines = new ArrayList<>();
+                for (int i = 0; i < lineCount; i++) {
+                    lines.add(text.substring(editText.getLayout().getLineStart(i),
+                            editText.getLayout().getLineEnd(i)));
+                }
+                Log.d(TAG, "preSolveEditText: lineCount = " + lineCount + "=>\n" + Arrays.toString(lines.toArray()));
             }
 
             @Override
@@ -165,13 +178,14 @@ public class DrawTextView extends View {
                 if (selectedText != null) {
                     selectedText.setScale(scaleFactor * selectedText.getScale());
                 } else {
-//                    Matrix matrix = getMatrix();
-//                    matrix.postScale(scaleFactor, scaleFactor);
-//                    DrawTextView.this.setma
                     canvasScale *= scaleFactor;
+//                    for (TextModel textModel : textModelList) {
+//                        RectF rect = textModel.getRect();
+//                        scaleRect(rect, scaleFactor, detector.getFocusX(), detector.getFocusY());
+//                    }
                 }
                 invalidate();
-                Log.d(TAG, "onScale: " + scaleFactor);
+                Log.d(TAG, "onScale: focus= " + detector.getFocusX() + "," + detector.getFocusY());
                 return true;
             }
 
@@ -228,18 +242,24 @@ public class DrawTextView extends View {
             rect.bottom = rect.top + textLayout.getHeight();
             canvas.restore();
             if (textModel.isSelected()) {
+                canvas.save();
+                canvas.scale(canvasScale, canvasScale);
                 canvas.drawRect(rect, paint);
+                canvas.restore();
             }
 //            Log.d(TAG, "onDraw: " + textModel);
         }
+        canvas.save();
+        canvas.scale(canvasScale, canvasScale);
+        canvas.drawRect(50, 50, 150, 150, paint);
+        canvas.restore();
 
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         touchPointCount = event.getPointerCount();
-        Log.d(TAG, "onTouchEvent: touchPointCount=" + touchPointCount);
+//        Log.d(TAG, "onTouchEvent: touchPointCount=" + touchPointCount);
         return gestureDetectorCompat.onTouchEvent(event) || scaleGestureDetector.onTouchEvent(event);
     }
-
 }
