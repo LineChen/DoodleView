@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.graphics.text.LineBreaker.BREAK_STRATEGY_SIMPLE;
+
 /**
  * Created by chenliu on 2020-02-14.
  */
@@ -237,6 +239,7 @@ public class DrawTextView extends View {
                     textModel.getText().length(),
                     textPaint,
                     (int) rect.width())
+                    .setBreakStrategy(BREAK_STRATEGY_SIMPLE)
                     .build();
             textLayout.draw(canvas);
             rect.bottom = rect.top + textLayout.getHeight();
@@ -262,4 +265,5 @@ public class DrawTextView extends View {
 //        Log.d(TAG, "onTouchEvent: touchPointCount=" + touchPointCount);
         return gestureDetectorCompat.onTouchEvent(event) || scaleGestureDetector.onTouchEvent(event);
     }
+
 }

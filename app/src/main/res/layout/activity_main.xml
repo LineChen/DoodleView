@@ -12,11 +12,11 @@
             android:layout_height="300dp"
             android:background="#ececec"/>
 
-    <!--    <Button-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:onClick="showEdit"-->
-    <!--            android:text="显示"/>-->
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="showEdit"
+            android:text="显示"/>
 
     <EditText
             android:id="@+id/editText"
@@ -31,6 +31,5 @@
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:textColor="#fff"
-            android:layout_margin="10dp"
             android:background="#000"/>
 </LinearLayout>

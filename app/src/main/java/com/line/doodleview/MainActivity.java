@@ -1,9 +1,11 @@
 package com.line.doodleview;
 
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.*;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -14,12 +16,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String TAG = "MainActivity";
+    private EditText editText;
+    private TextView tvDisplay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        EditText editText = findViewById(R.id.editText);
-        final TextView tvDisplay = findViewById(R.id.tvDisplay);
+        editText = findViewById(R.id.editText);
+        tvDisplay = findViewById(R.id.tvDisplay);
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -39,17 +45,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showEdit(View view) {
-//        TextView contentView = new TextView(this);
-//        contentView.setText("what !!!!!");
-//        contentView.setTextColor(getResources().getColor(R.color.colorPrimary));
-//        contentView.setTextSize(12F);
-//        contentView.setBackgroundColor(Color.BLUE);
-//        PopupWindow popupWindow = new PopupWindow(contentView);
-//        popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-//        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-//        popupWindow.setOutsideTouchable(true);
-//        popupWindow.setFocusable(true);
-//        popupWindow.setAnimationStyle(0);
-//        popupWindow.showAsDropDown(view, 0, 0);
+        calculateWidthFromFontSize(editText.getText().toString(), (int) (getResources().getDisplayMetrics().density * 12));
     }
+
+    private int calculateWidthFromFontSize(String testString, int currentSize) {
+        Rect bounds = new Rect();
+        TextPaint paint = new TextPaint();
+        paint.setTextSize(currentSize);
+        paint.getTextBounds(testString, 0, testString.length(), bounds);
+        Log.d(TAG, "calculateWidthFromFontSize: " + bounds);
+        Log.d(TAG, "calculateWidthFromFontSize: bounds尺寸=" + bounds.width() + "," + bounds.height());
+        Log.d(TAG, "calculateWidthFromFontSize: textView尺寸=" + tvDisplay.getWidth() + "," + tvDisplay.getHeight());
+
+        float desiredWidth = StaticLayout.getDesiredWidth(testString, paint);
+        Log.d(TAG, "StaticLayout.getDesiredWidth===" + desiredWidth);
+        return (int) Math.ceil(bounds.width());
+    }
+
+
 }
