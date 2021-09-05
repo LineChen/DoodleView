@@ -100,12 +100,12 @@ public class DrawTextView extends View {
                         }
                         text = result;
                         textWidth = contentView.getWidth();
+                        Log.d(TAG, "contentView.getWidth===" + textWidth);
                         TextModel textModel = new TextModel();
                         textModel.setText(text);
                         RectF rect = textModel.getRect();
-                        rect.left = (int) leftTopX;
-                        rect.top = (int) leftToyY;
-                        rect.right = (int) (leftTopX + textWidth);
+                        rect.left = leftTopX;
+                        rect.top = leftToyY;
                         textModelList.add(textModel);
                         invalidate();
                     }
@@ -228,21 +228,25 @@ public class DrawTextView extends View {
 
         for (TextModel textModel : textModelList) {
             RectF rect = textModel.getRect();
+            String text = textModel.getText();
             canvas.save();
             canvas.scale(canvasScale, canvasScale);
             canvas.translate(rect.left, rect.top);
             textPaint.setTextSize(getContext().getResources().getDisplayMetrics().density * 12 * textModel.getScale());
 //            textPaint.setTextScaleX(textModel.getScale());
+            float desiredWidth = StaticLayout.getDesiredWidth(text, textPaint);
+            Log.d(TAG, "StaticLayout.getDesiredWidth===" + desiredWidth);
             StaticLayout textLayout = StaticLayout.Builder.obtain(
-                    textModel.getText(),
+                    text,
                     0,
-                    textModel.getText().length(),
+                    text.length(),
                     textPaint,
-                    (int) rect.width())
+                    (int) desiredWidth)
                     .setBreakStrategy(BREAK_STRATEGY_SIMPLE)
                     .build();
             textLayout.draw(canvas);
             rect.bottom = rect.top + textLayout.getHeight();
+            rect.right = rect.left + desiredWidth;
             canvas.restore();
             if (textModel.isSelected()) {
                 canvas.save();
