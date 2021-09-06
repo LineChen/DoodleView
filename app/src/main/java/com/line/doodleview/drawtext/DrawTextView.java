@@ -2,6 +2,7 @@ package com.line.doodleview.drawtext;
 
 import android.content.Context;
 import android.graphics.*;
+import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -9,6 +10,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.*;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import androidx.annotation.Nullable;
@@ -27,7 +30,7 @@ import static android.graphics.text.LineBreaker.BREAK_STRATEGY_SIMPLE;
 /**
  * Created by chenliu on 2020-02-14.
  */
-public class DrawTextView extends View {
+public class DrawTextView extends FrameLayout {
 
     public static final String TAG = "DrawTextView";
 
@@ -101,17 +104,30 @@ public class DrawTextView extends View {
                         text = result;
                         textWidth = contentView.getWidth();
                         Log.d(TAG, "contentView.getWidth===" + textWidth);
+
+
+                        TextPaint textPaint = new TextPaint();
+                        textPaint.setTextSize(textSize);
+                        float desiredWidth = StaticLayout.getDesiredWidth(result, textPaint);
+                        StaticLayout st = new StaticLayout(result, textPaint, (int) desiredWidth, Layout.Alignment.ALIGN_NORMAL, 1F, 0F, true);
+                        int height = st.getHeight();
+                        Log.d(TAG, "解析文字：width=" + desiredWidth + ",height=" + height);
+
+
                         TextModel textModel = new TextModel();
-                        textModel.setText(text);
+                        textModel.setText(result);
                         RectF rect = textModel.getRect();
                         rect.left = leftTopX;
                         rect.top = leftToyY;
+                        rect.right = leftTopX + desiredWidth;
+                        rect.bottom = leftToyY + height;
                         textModelList.add(textModel);
                         invalidate();
                     }
                 });
                 return true;
             }
+
 
             private void preSolveEditText(EditText editText) {
                 String text = editText.getText().toString();
@@ -206,14 +222,17 @@ public class DrawTextView extends View {
     private int touchPointCount;
     private float canvasScale = 1.0f;
 
+    private float textSize = 34.56f;
+
     String text = "";
     float textWidth;
     TextPaint textPaint;
     Paint paint;
 
+
     {
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextSize(getContext().getResources().getDisplayMetrics().density * 12);
+        textPaint.setTextSize(textSize);
         textPaint.setColor(Color.DKGRAY);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -232,21 +251,20 @@ public class DrawTextView extends View {
             canvas.save();
             canvas.scale(canvasScale, canvasScale);
             canvas.translate(rect.left, rect.top);
-            textPaint.setTextSize(getContext().getResources().getDisplayMetrics().density * 12 * textModel.getScale());
+            textPaint.setTextSize(textSize);
 //            textPaint.setTextScaleX(textModel.getScale());
-            float desiredWidth = StaticLayout.getDesiredWidth(text, textPaint);
-            Log.d(TAG, "StaticLayout.getDesiredWidth===" + desiredWidth);
+//            float desiredWidth = StaticLayout.getDesiredWidth(text, textPaint);
             StaticLayout textLayout = StaticLayout.Builder.obtain(
                     text,
                     0,
                     text.length(),
                     textPaint,
-                    (int) desiredWidth)
+                    (int) rect.width())
                     .setBreakStrategy(BREAK_STRATEGY_SIMPLE)
                     .build();
             textLayout.draw(canvas);
-            rect.bottom = rect.top + textLayout.getHeight();
-            rect.right = rect.left + desiredWidth;
+//            rect.bottom = rect.top + textLayout.getHeight();
+//            rect.right = rect.left + desiredWidth;
             canvas.restore();
             if (textModel.isSelected()) {
                 canvas.save();
