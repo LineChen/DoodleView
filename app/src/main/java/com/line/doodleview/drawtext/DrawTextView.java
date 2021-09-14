@@ -80,7 +80,7 @@ public class DrawTextView extends FrameLayout {
                 }
 
                 final EditText contentView = new EditText(getContext());
-                contentView.setHint("输入");
+                contentView.setHint("输入文字");
                 contentView.setSelection(contentView.getText().length());
                 contentView.setGravity(Gravity.TOP | Gravity.LEFT);
                 contentView.setTextColor(Color.DKGRAY);
@@ -108,7 +108,7 @@ public class DrawTextView extends FrameLayout {
 
                         TextPaint textPaint = new TextPaint();
                         textPaint.setTextSize(textSize);
-                        float desiredWidth = StaticLayout.getDesiredWidth(result, textPaint);
+                        float desiredWidth = StaticLayout.getDesiredWidth(result, textPaint) + 5;
                         StaticLayout st = new StaticLayout(result, textPaint, (int) desiredWidth, Layout.Alignment.ALIGN_NORMAL, 1F, 0F, true);
                         int height = st.getHeight();
                         Log.d(TAG, "解析文字：width=" + desiredWidth + ",height=" + height);
@@ -238,14 +238,20 @@ public class DrawTextView extends FrameLayout {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.CYAN);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5);
+        paint.setStrokeWidth(borderWidth);
 
     }
+
+
+    private static final int borderPadding = 30;
+    private static final int borderCircleRadius = 8;
+    private static final int borderWidth = 4;
 
     @Override
     protected void onDraw(Canvas canvas) {
 
         for (TextModel textModel : textModelList) {
+            textModel.setSelected(true);
             RectF rect = textModel.getRect();
             String text = textModel.getText();
             canvas.save();
@@ -267,9 +273,32 @@ public class DrawTextView extends FrameLayout {
 //            rect.right = rect.left + desiredWidth;
             canvas.restore();
             if (textModel.isSelected()) {
+                float left = rect.left - borderPadding;
+                float top = rect.top - borderPadding;
+                float right = rect.right + borderPadding;
+                float bottom = rect.bottom + borderPadding;
+
                 canvas.save();
                 canvas.scale(canvasScale, canvasScale);
-                canvas.drawRect(rect, paint);
+
+                canvas.drawCircle(left, top, borderCircleRadius, paint);
+                canvas.drawCircle(right, top, borderCircleRadius, paint);
+                canvas.drawCircle(left, bottom, borderCircleRadius, paint);
+                canvas.drawCircle(right, bottom, borderCircleRadius, paint);
+                canvas.drawCircle((left + right) / 2, top, borderCircleRadius, paint);
+                canvas.drawCircle((left + right) / 2, bottom, borderCircleRadius, paint);
+                canvas.drawCircle(left, (top + bottom) / 2, borderCircleRadius, paint);
+                canvas.drawCircle(right, (top + bottom) / 2, borderCircleRadius, paint);
+
+                canvas.drawLine(left + borderCircleRadius, top, (left + right) / 2 - borderCircleRadius, top, paint);
+                canvas.drawLine(left + borderCircleRadius, bottom, (left + right) / 2 - borderCircleRadius, bottom, paint);
+                canvas.drawLine((left + right) / 2 + borderCircleRadius, top, right - borderCircleRadius, top, paint);
+                canvas.drawLine((left + right) / 2 + borderCircleRadius, bottom, right - borderCircleRadius, bottom, paint);
+                canvas.drawLine(left, top + borderCircleRadius, left, (top + bottom) / 2 - borderCircleRadius, paint);
+                canvas.drawLine(left, (top + bottom) / 2 + borderCircleRadius, left, bottom - borderCircleRadius, paint);
+                canvas.drawLine(right, top + borderCircleRadius, right, (top + bottom) / 2 - borderCircleRadius, paint);
+                canvas.drawLine(right, (top + bottom) / 2 + borderCircleRadius, right, bottom - borderCircleRadius, paint);
+
                 canvas.restore();
             }
 //            Log.d(TAG, "onDraw: " + textModel);

@@ -7,7 +7,7 @@
               android:orientation="vertical"
               tools:context=".MainActivity">
 
-    <com.line.doodleview.drawtext.DrawTextView
+    <com.line.doodleview.drawtext.DrawTextViewGroup
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:background="#ececec"/>
