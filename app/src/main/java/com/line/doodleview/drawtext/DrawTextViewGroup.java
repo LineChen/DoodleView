@@ -258,33 +258,6 @@ public class DrawTextViewGroup extends FrameLayout {
         touchPointCount = event.getPointerCount();
 //        Log.d(TAG, "onTouchEvent: touchPointCount=" + touchPointCount);
         return gestureDetectorCompat.onTouchEvent(event);
-
-//        switch (event.getAction()) {
-//            case MotionEvent.ACTION_MOVE:
-//                int deltaX = (int) event.getRawX() - lastX;
-//                int deltaY = (int) event.getRawY() - lastY;
-//
-//                if (parentWidth == 0) {
-//                    ViewGroup mViewGroup = (ViewGroup) getParent();
-//                    parentWidth = mViewGroup.getWidth();
-//                    parentHeight = mViewGroup.getHeight();
-//                }
-//
-//                if (getTranslationX() < -getLeft() && deltaX < 0) deltaX = 0;
-//                else if (getTranslationX() > (parentWidth - getRight()) && deltaX > 0) deltaX = 0;
-//                if (getTranslationY() < -getTop() && deltaY < 0) deltaY = 0;
-//                else if (getTranslationY() > (parentHeight - getBottom()) && deltaY > 0) deltaY = 0;
-//
-//                setTranslationX(getTranslationX() + deltaX);
-//                setTranslationY(getTranslationY() + deltaY);
-//
-//                lastX = (int) event.getRawX();
-//                lastY = (int) event.getRawY();
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                break;
-//        }
-//        return true;
     }
 
     @Override
