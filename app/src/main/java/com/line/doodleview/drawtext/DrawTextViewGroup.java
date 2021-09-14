@@ -212,9 +212,6 @@ public class DrawTextViewGroup extends FrameLayout {
 
     }
 
-    private int lastX, lastY;
-
-
     @Override
     protected void onDraw(Canvas canvas) {
 
